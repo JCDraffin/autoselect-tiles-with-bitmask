@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"Galaxy Brain"
+	],
+	"copyright": "Copyright © 2020, Galaxy Brain",
+	"description": "Simple algorithm to allow tile bitmasking with generic when given a 2d array",
+	"license": "proprietary",
+	"name": "tile-bitmasking-algorithm"
+}
