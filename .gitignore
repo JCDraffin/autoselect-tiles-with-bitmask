@@ -26,3 +26,5 @@ docs/
 tile-bitmasking-algorithm
 
 
+.vscode/launch.json
+tile-bitmasking-algorithm-test-library
