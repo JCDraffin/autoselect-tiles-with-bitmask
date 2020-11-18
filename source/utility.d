@@ -14,3 +14,23 @@ public static wchar[][] dup2d(wchar[][] target)
     return result;
 
 }
+
+
+unittest 
+{
+    wchar[][] a = [['x','x'],['x','x']]; 
+    wchar[][] b = a.dup; 
+    wchar[][] c = dup2d(a);
+
+    a[0][0] = 'y';
+    b[1][1] = 'z';
+
+    c[0][1] = 'z';
+    c[1][0] = 'y';
+
+    assert (a[1][1] != c[1][1] );
+    assert (b[0][0] != c[0][0] );
+
+    assert (a[1][0] != c[1][0] );
+    assert (b[0][1] != c[0][1] );
+}
