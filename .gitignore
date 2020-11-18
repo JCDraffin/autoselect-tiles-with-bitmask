@@ -23,8 +23,13 @@ docs/
 # Code coverage
 *.lst
 
+#vscode 
+.vscode/launch.json
+.vscode/
+.vscode/tasks.json
+
+
 tile-bitmasking-algorithm
 
 
-.vscode/launch.json
 tile-bitmasking-algorithm-test-library
