@@ -9,47 +9,32 @@ module algorithm.bitmask;
 		writefln("%(%c%)", videoBuffer);
 	}
 
-
-	 
-	//used for simple rule construction. bits will match numberpad locations.
-	const ubyte _1bit =	0b00000001;
-	const ubyte _2bit =	0b00000010;
-	const ubyte _3bit =	0b00000100;
-	const ubyte _4bit =	0b00001000;
-	//DO NOTE, WE SKIP _5bit. This makes the last bit in a byte _9bit
-	//In the use context, _5bit would be a self test, which is useless, and we need the extra bit else where.
-	const ubyte _6bit =	0b00010000;
-	const ubyte _7bit =	0b00100000;
-	const ubyte _8bit =	0b01000000;
-	const ubyte _9bit =	0b10000000;
-		
-
 public static wchar[] BitMask(wchar[][] value, wchar testCondition)
 {	
 	
 	wchar Conversion(ubyte scan)
 	{
 		//simple hack solution to a problem.
-		const ubyte HACK = _9bit | _7bit | _1bit | _3bit; // this should be 165 or 0b1010_0101
+		const ubyte HACK = 0b_1010_0101;
 		scan = scan | HACK; 
-		wchar result = '█'; //█ 
+		wchar result = '█'; //We need a fall back result. Undo the hard code ASP.
 		switch(scan)
 		{
 			result = result; break;
 
-			case _2bit | _4bit | HACK: result = TileWChar._9; break;
-			case _2bit | _6bit | HACK: result = TileWChar._7; break;
-			case _2bit | _8bit | HACK: result = TileWChar._4_6; break;
-			case _2bit | _4bit | _6bit | HACK: result = TileWChar._8; break;
-			case _2bit | _4bit | _8bit | HACK: result = TileWChar._6; break;
-			case _2bit | _6bit | _8bit | HACK: result = TileWChar._4; break;
-			case _2bit | _4bit | _6bit | _8bit | HACK: result = TileWChar._5; break;
+			case 0b_0000_1010 | HACK: result = TileWChar._9; break;
+			case 0b_0001_0010 | HACK: result = TileWChar._7; break;
+			case 0b_0100_0010 | HACK: result = TileWChar._4_6; break;
+			case 0b_0001_1010 | HACK: result = TileWChar._8; break;
+			case 0b_0100_1010 | HACK: result = TileWChar._6; break;
+			case 0b_0101_0010 | HACK: result = TileWChar._4; break;
+			case 0b_0101_1010 | HACK: result = TileWChar._5; break;
 
-			case _4bit | _6bit | HACK: result = TileWChar._2_8; break;
-			case _4bit | _8bit | HACK: result = TileWChar._3; break;
-			case _4bit | _6bit | _8bit | HACK: result = TileWChar._2; break;
+			case 0b_0001_1000 | HACK: result = TileWChar._2_8; break;
+			case 0b_0100_1000 | HACK: result = TileWChar._3; break;
+			case 0b_0101_1000 | HACK: result = TileWChar._2; break;
 
-			case _6bit | _8bit | HACK: result = TileWChar._1; break;
+			case 0b_0101_0000 | HACK: result = TileWChar._1; break;
             
             default: result = result; break;
 		}
