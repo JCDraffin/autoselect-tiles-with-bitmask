@@ -15,6 +15,15 @@ public static wchar[][] dup2d(wchar[][] target)
 
 }
 
+wchar[] Compress2DWCharArrayTo1D(wchar[][] value )
+{
+    wchar[] result;
+	foreach (array; value)
+	    result = result ~ array ~ '\n';
+	result = result[0..$-1];
+	return result;
+}
+
 
 unittest 
 {
@@ -34,3 +43,4 @@ unittest
     assert (a[1][0] != c[1][0] );
     assert (b[0][1] != c[0][1] );
 }
+
