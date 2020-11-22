@@ -31,6 +31,6 @@ void main()
 	];
 	
 	foreach (wchar[][] shape; sampler)
-		PrintScreen(BitMask(shape,'█'));
+		PrintScreen(BitMask!(wchar)(shape, StandardTileArray()));
 }
 

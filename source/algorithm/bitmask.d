@@ -1,102 +1,79 @@
 module algorithm.bitmask;
 
-
-
     //our simple display printing function. This prints a 2d array of characters as a roguelike map.
 public static void PrintScreen(wchar[] videoBuffer)
 {
     import std;
+
     writefln("%(%c%)", videoBuffer);
 }
 //simplify the conversion of 2d array to 1d for PrintScreen. 
 public static void PrintScreen(wchar[][] videoBuffer)
 {
     import utility;
-    PrintScreen(Compress2DWCharArrayTo1D(BitMask(videoBuffer,'█'))); 
 
+    PrintScreen(Compress2DWCharArrayTo1D(BitMask!(wchar)(videoBuffer, StandardTileArray())));
 }
 
-public static wchar[][] BitMask(wchar[][] value, wchar testCondition)
+public static wchar[][] BitMask(D)(wchar[][] value, D[] tiles)
 {	
     
     wchar Conversion(ubyte scan)
     {
-        //simple hack solution to a problem.
-        const ubyte HACK = 0b_1010_0101;
-        scan = scan | HACK; 
-        wchar result = '█'; //We need a fall back result. Undo the hard code ASP.
-        switch(scan)
-        {
-            result = result; break;
 
-            case 0b_0000_1010 | HACK: result = TileWChar._9; break;
-            case 0b_0001_0010 | HACK: result = TileWChar._7; break;
-            case 0b_0100_0010 | HACK: result = TileWChar._4_6; break;
-            case 0b_0001_1010 | HACK: result = TileWChar._8; break;
-            case 0b_0100_1010 | HACK: result = TileWChar._6; break;
-            case 0b_0101_0010 | HACK: result = TileWChar._4; break;
-            case 0b_0101_1010 | HACK: result = TileWChar._5; break;
-
-            case 0b_0001_1000 | HACK: result = TileWChar._2_8; break;
-            case 0b_0100_1000 | HACK: result = TileWChar._3; break;
-            case 0b_0101_1000 | HACK: result = TileWChar._2; break;
-
-            case 0b_0101_0000 | HACK: result = TileWChar._1; break;
-            
-            default: result = result; break;
+        return tiles[scan];
         }
-        return result;
-    } 
 
     ubyte ScanNeighbors(wchar testCondition, int xloc, int yloc, wchar[][] array)
     {
-        ubyte result;
+        int[][] cord = [
+            [xloc + 0, xloc - 1, xloc + 1, xloc + 0],
+            [yloc - 1, yloc + 0, yloc + 0, yloc + 1]
+        ];
         
-        //Check the neighbors adjancent to the tile
-        for(int y = yloc - 1; y <= yloc+1; y++ ){
-            for(int x = xloc + 1; x >= xloc-1; x-- )
-            {	
-                //if checking itself, just skip.
-                if(y == yloc && x == xloc){
-                    continue;
-                }
+        ubyte result = 0;
 
+        //Check the neighbors adjancent to the tile
+        for (int i = cast(int) cord[0].length - 1; i > -1; i--)
+            {	
+            int x = cord[0][i];
+            int y = cord[1][i];
                 result = cast(ubyte)(result << 1);
 
                 //if scanning out side the arrays' bounds, just skip but increment.
-                if(y < 0 || x < 0 || y >= array.length || x >= array.length)
+            if (y < 0 || x < 0 || y >= array.length || x >= array.length)
                 {
                     continue; // yes we have to scan for this. Other wise the next if statement might throw an exception error.
                 //if we find out target
-                } else if (array[y][x] == testCondition)
+            }
+            else if (array[y][x] == testCondition)
                 {
                     
                     result = cast(ubyte)(result + 1);
                 }
             }
-        }
+        import std;
+
+        writefln!"result was %b"(result);
         return result;
     }
 
-    
     import utility;
 
-
     wchar[][] buffer = dup2d(value); 
-    foreach (y,array; value)
+    foreach (y, array; value)
     {
-        
-        foreach (x,element; array)
+        foreach (x, element; array)
         {
-            if(testCondition == element)
+            D testCondition = tiles[0];
+            if (testCondition == element)
             {
-                ubyte scanTarget = ScanNeighbors(testCondition, cast(int)x,cast(int)y, value);
-                buffer[y][x] = Conversion( scanTarget );		
+                ubyte scanTarget = ScanNeighbors(testCondition, cast(int) x, cast(int) y, value);
+                buffer[y][x] = Conversion(scanTarget);
             }
         }	
     }
     
-
     return buffer;
 }
 
@@ -160,17 +137,19 @@ public static bool TestBitmaskingResult(wchar[] example, wchar[] result)
 
     assert(example.length == result.length);
         
-    foreach (i,whatever; example)
+    foreach (i, whatever; example)
     {
         assert(example[i] == result[i]);
     }
 
     return true;
 }
-public static void PrintUnittest (wchar[] src )
+
+public static void PrintUnittest(wchar[] src)
 {
 
     import std;
+
     writeln("-------------------------------------------------------------");
     PrintScreen(src);
     writeln("-------------------------------------------------------------");
@@ -281,6 +260,29 @@ unittest
 
 }
 
+public wchar[] StandardTileArray()
+{
+
+    // _9 and _1
+    return [
+        TileWChar.wall, //0x_0000_0000
+        'n', //0x_0000_0001
+        'w', //0x_0000_0010
+        TileWChar._3, //0x_0000_0011
+        'e', //0x_0000_0100
+        TileWChar._1, //0x_0000_0101
+        TileWChar._2_8, //0x_0000_0110
+        TileWChar._2, //0x_0000_0111
+        's', //0x_0000_1000
+        TileWChar._4_6, //0x_0000_1001
+        TileWChar._9, //0x_0000_1010
+        TileWChar._6, //0x_0000_1011
+        TileWChar._7, //0x_0000_1100
+        TileWChar._4, //0x_0000_1101
+        TileWChar._8, //0x_0000_1110
+        TileWChar._5 //0x_0000_1111
+    ];
+}
 
 public enum TileWChar : wchar
 {
@@ -304,9 +306,7 @@ public enum TileWChar : wchar
     wall = '█',
     // FLOOR_CLEAN = '▓',
     // FLOOR_PEBBLE = '░',
-     FLOOR_STONE = '▒', 
-
-    // WALL_1_CORNER_BOTTOM_LEFT = '╚',
+    FLOOR_STONE = '▒',// WALL_1_CORNER_BOTTOM_LEFT = '╚',
     // WALL_2_CORNER_BOTTOM = '═',
     // WALL_3_CORNER_BOTTOM_RIGHT = '╝',
     // WALL_4_CORNER_LEFT = '║',
