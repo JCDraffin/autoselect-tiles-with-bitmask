@@ -99,38 +99,9 @@ public static wchar[][] BitMask(D)(wchar[][] value, D[] tiles)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+///////////////////////
+///UNIT TESTING CODE///
+///////////////////////
 
 public static bool TestBitmaskingResult(wchar[] example, wchar[] result)
 {
@@ -155,109 +126,101 @@ public static void PrintUnittest(wchar[] src)
     writeln("-------------------------------------------------------------");
 }
 
+private static void UnittestShapeWchar(wchar[][] sample, wchar[] result)
+{
+    import utility;
+
+    wchar[] convert = Compress2DWCharArrayTo1D(BitMask(sample, StandardTileArray()));
+    PrintUnittest(convert);
+
+    assert(TestBitmaskingResult(convert, result));
+}
 
 //1x1
 unittest
 {
-    import utility;
-    wchar[][] sample = [['█']];
-    wchar[] convert = Compress2DWCharArrayTo1D(BitMask(sample,'█'));
-    PrintUnittest(convert);
-    wchar[] result = ['█'];
-    assert(TestBitmaskingResult(convert,result));
-
+    UnittestShapeWchar([['█', '█'], ['█', '█']], [
+            '╔', '╗', '\n', '╚', '╝'
+            ]);
 }
 
 //2x2
 unittest
 {
-    import utility;
-    wchar[][] sample = [['█','█'],['█','█']];
-    wchar[] convert = Compress2DWCharArrayTo1D(BitMask(sample,'█'));
-    PrintUnittest(convert);
-    wchar[] result = ['╔','╗','\n','╚','╝'];
-    assert(convert == result);
+
+    UnittestShapeWchar([['█']], ['█']);
 
 }
 
 //3x3 middle gone
 unittest
 {
+
+    UnittestShapeWchar([
+            ['█', '█', '█'], ['█', '▒', '█'], ['█', '█', '█']
+            ], [
+            '╔', '═', '╗', '\n', '║', '▒', '║', '\n', '╚', '═',
+            '╝'
+            ]);
+
     import utility;
+
     wchar[][] sample = [
-        ['█','█','█'],
-        ['█','▒','█'],
-        ['█','█','█']
+        ['█', '█', '█'], ['█', '▒', '█'], ['█', '█', '█']
         ];
-    wchar[] convert = Compress2DWCharArrayTo1D(BitMask(sample,'█'));
-    PrintUnittest(convert);
-    wchar[] result = ['╔','═','╗','\n','║','▒','║','\n','╚','═','╝'];
-    assert(convert == result);
 
 }
 
 // 3x3
 unittest
 {
-    import utility;
-    wchar[][] sample = [['█','█','█'],['█','█','█'],['█','█','█']];
-    wchar[] convert = Compress2DWCharArrayTo1D(BitMask(sample,'█'));
-    PrintUnittest(convert);
-    wchar[] result = ['╔','╦','╗','\n','╠','╬','╣','\n','╚','╩','╝'];
-    assert(convert == result);
+
+    UnittestShapeWchar([
+            ['█', '█', '█'], ['█', '█', '█'], ['█', '█', '█']
+            ], [
+            '╔', '╦', '╗', '\n', '╠', '╬', '╣', '\n', '╚', '╩',
+            '╝'
+            ]);
 
 }
 
 //5x5
 unittest
 {
-    import utility;
-    wchar[][] sample = [
-        ['█','█','█','█','█'],
-        ['█','▒','▒','▒','█'],
-        ['█','▒','█','▒','█'],
-        ['█','▒','▒','▒','█'],
-        ['█','█','█','█','█']
-        ];
-    wchar[] convert = Compress2DWCharArrayTo1D(BitMask(sample,'█'));
-    PrintUnittest(convert);
-    wchar[] result = [
-        '╔','═','═','═','╗','\n',
-        '║','▒','▒','▒','║','\n',
-        '║','▒','█','▒','║','\n',
-        '║','▒','▒','▒','║','\n',
-        '╚','═','═','═','╝'
-        ];
-    assert(convert == result);
 
+    UnittestShapeWchar([
+            ['█', '█', '█', '█', '█'],
+            ['█', '▒', '▒', '▒', '█'],
+            ['█', '▒', '█', '▒', '█'],
+            ['█', '▒', '▒', '▒', '█'],
+            ['█', '█', '█', '█', '█']
+            ], [
+            '╔', '═', '═', '═', '╗', '\n', '║', '▒', '▒',
+            '▒', '║', '\n', '║', '▒', '█', '▒', '║', '\n', '║',
+            '▒', '▒', '▒', '║', '\n', '╚', '═', '═', '═', '╝'
+            ]);
 }
 
 //7x7
 unittest
 {
-    import utility;
-    wchar[][] sample = [
-        ['█','█','█','█','█','█','█'],
-        ['█','▒','█','█','█','▒','█'],
-        ['█','▒','█','█','█','▒','█'],
-        ['█','▒','█','█','█','▒','█'],
-        ['█','▒','█','█','█','▒','█'],
-        ['█','▒','█','█','█','▒','█'],
-        ['█','█','█','█','█','█','█'],
-    ];
-    wchar[] convert = Compress2DWCharArrayTo1D(BitMask(sample,'█'));
-    PrintUnittest(convert);
-    wchar[] result = [
-        '╔','═','╦','╦','╦','═','╗','\n',
-        '║','▒','╠','╬','╣','▒','║','\n',
-        '║','▒','╠','╬','╣','▒','║','\n',
-        '║','▒','╠','╬','╣','▒','║','\n',
-        '║','▒','╠','╬','╣','▒','║','\n',
-        '║','▒','╠','╬','╣','▒','║','\n',
-        '╚','═','╩','╩','╩','═','╝'	
-        ];
-    assert(convert == result);
 
+    UnittestShapeWchar([
+            ['█', '█', '█', '█', '█', '█', '█'],
+            ['█', '▒', '█', '█', '█', '▒', '█'],
+            ['█', '▒', '█', '█', '█', '▒', '█'],
+            ['█', '▒', '█', '█', '█', '▒', '█'],
+            ['█', '▒', '█', '█', '█', '▒', '█'],
+            ['█', '▒', '█', '█', '█', '▒', '█'],
+            ['█', '█', '█', '█', '█', '█', '█'],
+            ], [
+            '╔', '═', '╦', '╦', '╦', '═', '╗', '\n', '║',
+            '▒', '╠', '╬', '╣', '▒', '║', '\n', '║', '▒',
+            '╠', '╬', '╣', '▒', '║', '\n', '║', '▒', '╠',
+            '╬', '╣', '▒', '║', '\n', '║', '▒', '╠', '╬',
+            '╣', '▒', '║', '\n', '║', '▒', '╠', '╬', '╣',
+            '▒', '║', '\n', '╚', '═', '╩', '╩', '╩', '═', '╝'
+            ]);
 }
 
 public wchar[] StandardTileArray()
