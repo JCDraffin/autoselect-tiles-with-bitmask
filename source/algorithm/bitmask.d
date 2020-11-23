@@ -15,15 +15,15 @@ public static void PrintScreen(wchar[][] videoBuffer)
     PrintScreen(Compress2DWCharArrayTo1D(BitMask!(wchar)(videoBuffer, StandardTileArray())));
 }
 
-public static wchar[][] BitMask(D)(wchar[][] value, D[] tiles)
+public static D[][] BitMask(D)(D[][] value, D[][] tiles)
 {
 
-    wchar Conversion(ubyte scan)
+    D Conversion(ubyte scan, D[] tileset)
     {
-        return tiles[scan];
+        return tileset[scan];
     }
 
-    ubyte ScanNeighbors(wchar testCondition, int xloc, int yloc, wchar[][] array)
+    ubyte ScanNeighbors(D testCondition, int xloc, int yloc, D[][] array)
     {
         int[][] cord = [
             [xloc + 0, xloc - 1, xloc + 1, xloc + 0],
@@ -63,11 +63,14 @@ public static wchar[][] BitMask(D)(wchar[][] value, D[] tiles)
     {
         foreach (x, element; array)
         {
-            D testCondition = tiles[0];
-            if (testCondition == element)
+            foreach (tileset; tiles)
             {
-                ubyte scanTarget = ScanNeighbors(testCondition, cast(int) x, cast(int) y, value);
-                buffer[y][x] = Conversion(scanTarget);
+                D testCondition = tileset[0];
+                if (testCondition == element)
+                {
+                    ubyte scanTarget = ScanNeighbors(testCondition, cast(int) x, cast(int) y, value);
+                    buffer[y][x] = Conversion(scanTarget, tileset);
+                }
             }
         }
     }
@@ -128,7 +131,7 @@ private static void UnittestShapeWchar(wchar[][] sample, wchar[] result)
 {
     import utility;
 
-    wchar[] convert = Compress2DWCharArrayTo1D(BitMask(sample, StandardTileArray()));
+    wchar[] convert = Compress2DWCharArrayTo1D(BitMask!wchar(sample, StandardTileArray()));
     PrintUnittest(convert);
 
     assert(TestBitmaskingResult(convert, result));
@@ -175,9 +178,9 @@ unittest
 
     UnittestShapeWchar([
             ['█', '█', '█', '█', '█'],
-            ['█', '▒', '▒', '▒', '█'],
-            ['█', '▒', '█', '▒', '█'],
-            ['█', '▒', '▒', '▒', '█'],
+            ['█', '■', '■', '■', '█'],
+            ['█', '■', '█', '■', '█'],
+            ['█', '■', '■', '■', '█'],
             ['█', '█', '█', '█', '█']
             ], [
             '╔', '═', '═', '═', '╗', '\n',
@@ -194,11 +197,11 @@ unittest
 
     UnittestShapeWchar([
             ['█', '█', '█', '█', '█', '█', '█'],
-            ['█', '▒', '█', '█', '█', '▒', '█'],
-            ['█', '▒', '█', '█', '█', '▒', '█'],
-            ['█', '▒', '█', '█', '█', '▒', '█'],
-            ['█', '▒', '█', '█', '█', '▒', '█'],
-            ['█', '▒', '█', '█', '█', '▒', '█'],
+            ['█', '■', '█', '█', '█', '■', '█'],
+            ['█', '■', '█', '█', '█', '■', '█'],
+            ['█', '■', '█', '█', '█', '■', '█'],
+            ['█', '■', '█', '█', '█', '■', '█'],
+            ['█', '■', '█', '█', '█', '■', '█'],
             ['█', '█', '█', '█', '█', '█', '█'],
             ], [
             '╔', '═', '╦', '╦', '╦', '═', '╗', '\n',
@@ -217,11 +220,11 @@ unittest
 
     UnittestShapeWchar([
             ['█', '█', '█', '█', '█', '█', '█'],
-            ['█', '▒', '▒', '▒', '█', '█', '█'],
-            ['█', '▒', '█', '▒', '█', '▒', '█'],
-            ['█', '▒', '█', '▒', '▒', '▒', '█'],
-            ['█', '▒', '▒', '█', '█', '▒', '█'],
-            ['█', '▒', '▒', '▒', '▒', '▒', '█'],
+            ['█', '■', '■', '■', '█', '█', '█'],
+            ['█', '■', '█', '■', '█', '■', '█'],
+            ['█', '■', '█', '■', '■', '■', '█'],
+            ['█', '■', '■', '█', '█', '■', '█'],
+            ['█', '■', '■', '■', '■', '■', '█'],
             ['█', '█', '█', '█', '█', '█', '█'],
             ], [
             '╔', '═', '═', '═', '╦', '╦', '╗', '\n',
@@ -235,26 +238,46 @@ unittest
 }
 
 
-public wchar[] StandardTileArray()
+public wchar[][] StandardTileArray()
 {
     return 
     [
-        TileWChar.wall, //0x_0000_0000
-        TileWChar._N,   //0x_0000_0001
-        TileWChar._W,   //0x_0000_0010
-        TileWChar._3,   //0x_0000_0011
-        TileWChar._E,   //0x_0000_0100
-        TileWChar._1,   //0x_0000_0101
-        TileWChar._2_8, //0x_0000_0110
-        TileWChar._2,   //0x_0000_0111
-        TileWChar._S,   //0x_0000_1000
-        TileWChar._4_6, //0x_0000_1001
-        TileWChar._9,   //0x_0000_1010
-        TileWChar._6,   //0x_0000_1011
-        TileWChar._7,   //0x_0000_1100
-        TileWChar._4,   //0x_0000_1101
-        TileWChar._8,   //0x_0000_1110
-        TileWChar._5    //0x_0000_1111
+        [
+            TileWChar.wall, //0x_0000_0000
+            TileWChar._N,   //0x_0000_0001
+            TileWChar._W,   //0x_0000_0010
+            TileWChar._3,   //0x_0000_0011
+            TileWChar._E,   //0x_0000_0100
+            TileWChar._1,   //0x_0000_0101
+            TileWChar._2_8, //0x_0000_0110
+            TileWChar._2,   //0x_0000_0111
+            TileWChar._S,   //0x_0000_1000
+            TileWChar._4_6, //0x_0000_1001
+            TileWChar._9,   //0x_0000_1010
+            TileWChar._6,   //0x_0000_1011
+            TileWChar._7,   //0x_0000_1100
+            TileWChar._4,   //0x_0000_1101
+            TileWChar._8,   //0x_0000_1110
+            TileWChar._5    //0x_0000_1111
+        ],
+        [
+            TileWChar.FLOOR_BASIC, 
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE,
+            TileWChar.FLOOR_STONE
+        ]
     ];
 }
 
@@ -285,6 +308,7 @@ public enum TileWChar : wchar
 
     // FLOOR_CLEAN = '▓',
     // FLOOR_PEBBLE = '░',
+    FLOOR_BASIC = '■',
     FLOOR_STONE = '▒', // WALL_1_CORNER_BOTTOM_LEFT = '╚',
     // WALL_2_CORNER_BOTTOM = '═',
     // WALL_3_CORNER_BOTTOM_RIGHT = '╝',
