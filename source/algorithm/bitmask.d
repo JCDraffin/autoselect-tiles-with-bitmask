@@ -12,7 +12,7 @@ public static void PrintScreen(wchar[][] videoBuffer)
 {
     import utility;
 
-    PrintScreen(Compress2DWCharArrayTo1D(BitMask!(wchar)(videoBuffer, StandardTileArray())));
+    PrintScreen(Compress2DWCharArrayTo1D(videoBuffer,));
 }
 
 public static D[][] BitMask(D)(D[][] value, D[][] tiles)
@@ -42,7 +42,7 @@ public static D[][] BitMask(D)(D[][] value, D[][] tiles)
             result = cast(ubyte)(result << 1);
 
             //if scanning out side the arrays' bounds, just skip but increment.
-            if (y < 0 || x < 0 || y >= array.length || x >= array.length)
+            if (y < 0 || x < 0 || y >= array.length || x >= array[0].length)
             {
                 continue; // yes we have to scan for this. Other wise the next if statement might throw an exception error.
                 //if we find out target
@@ -57,22 +57,22 @@ public static D[][] BitMask(D)(D[][] value, D[][] tiles)
     }
 
     import utility : dup2d;
+    import std.range;
+    import std.algorithm.iteration;
 
     wchar[][] buffer = dup2d(value);
-    foreach (y, array; value)
+    foreach(i, element;  value.joiner().array)
     {
-        foreach (x, element; array)
-        {
-            foreach (tileset; tiles)
+     int x = cast(int)(i%value[0].length), y = cast(int)(i/value[0].length);
+            foreach (tileset; (tiles))
             {
                 D testCondition = tileset[0];
                 if (testCondition == element)
                 {
-                    ubyte scanTarget = ScanNeighbors(testCondition, cast(int) x, cast(int) y, value);
+                    ubyte scanTarget = ScanNeighbors(testCondition, x, y, value);
                     buffer[y][x] = Conversion(scanTarget, tileset);
                 }
             }
-        }
     }
 
     return buffer;
