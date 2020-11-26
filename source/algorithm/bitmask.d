@@ -18,7 +18,30 @@ public static void PrintScreen(wchar[][] videoBuffer)
 public static D[][] BitMask(D)(D[][] value, D[][] tiles)
 {
 
-    D Conversion(ubyte scan, D[] tileset)
+    import utility : dup2d;
+    import std.range : array;
+    import std.algorithm.iteration: joiner;
+
+    wchar[][] buffer = dup2d(value);
+    foreach(i, element;  value.joiner().array)
+    {
+     int x = cast(int)(i%value[0].length), y = cast(int)(i/value[0].length);
+            foreach (tileset; tiles)
+            {
+                D testCondition = tileset[0];
+                if (testCondition == element)
+                    buffer[y][x] = SingleElementBitMask!(D,D)(value, tileset, testCondition,x,y); 
+            }
+    }
+
+    return buffer;
+}
+
+public static T SingleElementBitMask(D,T)(D[][] value, T[] tiles, D testCondition, int atX, int atY)
+{
+
+
+    T Conversion(ubyte scan, T[] tileset)
     {
         return tileset[scan];
     }
@@ -32,7 +55,7 @@ public static D[][] BitMask(D)(D[][] value, D[][] tiles)
 
         ubyte result = 0;
 
-        //Check the neighbors adjancent to the tile
+        //Check the neighbors adjacent to the tile
         for (int i = cast(int) cord[0].length - 1; i > -1; i--)
         {
         	
@@ -49,36 +72,16 @@ public static D[][] BitMask(D)(D[][] value, D[][] tiles)
             }
             else if (array[y][x] == testCondition)
             {
-
-                result = cast(ubyte)(result + 1);
+                result = cast(ubyte)(result + 1);           
             }
         }
         return result;
     }
 
-    import utility : dup2d;
-    import std.range;
-    import std.algorithm.iteration;
+    ubyte scanTarget = ScanNeighbors(testCondition, atX, atY, value);
+    return Conversion(scanTarget, tiles);
 
-    wchar[][] buffer = dup2d(value);
-    foreach(i, element;  value.joiner().array)
-    {
-     int x = cast(int)(i%value[0].length), y = cast(int)(i/value[0].length);
-            foreach (tileset; (tiles))
-            {
-                D testCondition = tileset[0];
-                if (testCondition == element)
-                {
-                    ubyte scanTarget = ScanNeighbors(testCondition, x, y, value);
-                    buffer[y][x] = Conversion(scanTarget, tileset);
-                }
-            }
-    }
-
-    return buffer;
 }
-
-
 
 
 
@@ -214,7 +217,7 @@ unittest
             ]);
 }
 
-//7x7 testing single bit characters.
+//7x7 testing multi tileset.
 unittest
 {
 
@@ -284,10 +287,6 @@ public wchar[][] StandardTileArray()
 public enum TileWChar : wchar
 {
 
-    // FLOOR_CLEAN = '▓',
-    // FLOOR_PEBBLE = '░',
-    // FLOOR_STONE = '▒', 
-
     _1 = '╚',
     _2 = '╩',
     _3 = '╝',
@@ -306,17 +305,6 @@ public enum TileWChar : wchar
     _S = '▄',
     wall = '█',
 
-    // FLOOR_CLEAN = '▓',
-    // FLOOR_PEBBLE = '░',
     FLOOR_BASIC = '■',
-    FLOOR_STONE = '▒', // WALL_1_CORNER_BOTTOM_LEFT = '╚',
-    // WALL_2_CORNER_BOTTOM = '═',
-    // WALL_3_CORNER_BOTTOM_RIGHT = '╝',
-    // WALL_4_CORNER_LEFT = '║',
-
-    // WALL_6_CORNER_RIGHT = '║',
-    // WALL_7_CORNER_UPPER_LEFT = '╔',
-    // WALL_8_CORNER_UPPER = '═',
-    // WALL_9_CORNER_UPPER_RIGHT = '╗'
-
+    FLOOR_STONE = '▒',
 }
