@@ -1,28 +1,27 @@
-module algorithm.bitmask;
+module com.github.jcdraffin.bitmask;
 
 //our simple display printing function. This prints a 2d array of characters as a roguelike map.
-public static void PrintScreen(wchar[] videoBuffer)
+public static void printScreen(wchar[] videoBuffer)
 {
-    import std;
+    import std:writefln;
 
     writefln("%(%c%)", videoBuffer);
 }
-//simplify the conversion of 2d array to 1d for PrintScreen. 
-public static void PrintScreen(wchar[][] videoBuffer)
+//simplify the conversion of 2d array to 1d for printScreen. 
+public static void printScreen(wchar[][] videoBuffer)
 {
-    import utility;
-
-    PrintScreen(Compress2DWCharArrayTo1D(videoBuffer,));
+ 
+    printScreen(compress2DWCharArrayTo1D(videoBuffer,));
 }
 
-public static D[][] BitMask(D)(D[][] value, D[][] tiles)
+@safe public static D[][] bitMask(D)(D[][] value, D[][] tiles)
 {
 
-    import utility : dup2d;
+ 
     import std.range : array;
     import std.algorithm.iteration: joiner;
 
-    wchar[][] buffer = dup2d(value);
+    D[][] buffer = dup2d(value);
     foreach(i, element;  value.joiner().array)
     {
      int x = cast(int)(i%value[0].length), y = cast(int)(i/value[0].length);
@@ -30,14 +29,14 @@ public static D[][] BitMask(D)(D[][] value, D[][] tiles)
             {
                 D testCondition = tileset[0];
                 if (testCondition == element)
-                    buffer[y][x] = SingleElementBitMask!(D,D)(value, tileset, testCondition,x,y); 
+                    buffer[y][x] = singleElementBitMask!(D,D)(value, tileset, testCondition,x,y); 
             }
     }
 
     return buffer;
 }
 
-public static T SingleElementBitMask(D,T)(D[][] value, T[] tiles, D testCondition, int atX, int atY)
+@safe public static T singleElementBitMask(D,T)(D[][] value, T[] tiles, D testCondition, int atX, int atY)
 {
 
 
@@ -60,8 +59,8 @@ public static T SingleElementBitMask(D,T)(D[][] value, T[] tiles, D testConditio
         {
         	
         
-            int x = cord[0][i];
-            int y = cord[1][i];
+            const int x = cord[0][i];
+            const int y = cord[1][i];
             result = cast(ubyte)(result << 1);
 
             //if scanning out side the arrays' bounds, just skip but increment.
@@ -78,9 +77,60 @@ public static T SingleElementBitMask(D,T)(D[][] value, T[] tiles, D testConditio
         return result;
     }
 
-    ubyte scanTarget = ScanNeighbors(testCondition, atX, atY, value);
+    const ubyte scanTarget = ScanNeighbors(testCondition, atX, atY, value);
     return Conversion(scanTarget, tiles);
 
+}
+
+
+//we have to roll our own fuction to copy without refrences an array with 2 deepness.
+public static T[][] dup2d(T)(T[][] target)
+{
+    //we need a copy of the first arrary's size. This is the simpliest way.
+    wchar[][] result =  target.dup;
+
+    foreach (i,array; result)
+    {
+        result[i] = target[i].dup;// copys the second level.
+    }
+
+    return result;
+
+}
+
+wchar[] compress2DWCharArrayTo1D(wchar[][] value )
+{
+    wchar[] result;
+	foreach (array; value)
+	    result = result ~ array ~ '\n';
+	result = result[0..$-1];
+	return result;
+}
+
+
+
+///////////////////////
+///UNIT TESTING CODE///
+///////////////////////
+
+
+unittest 
+{
+    wchar[][] a = [['x','x'],['x','x']]; 
+    wchar[][] b = a.dup; 
+    wchar[][] c = dup2d(a);
+
+    a[0][0] = 'y';
+    b[1][1] = 'z';
+
+    c[0][1] = 'z';
+    c[1][0] = 'y';
+
+    assert (a[1][1] != c[1][1] );
+    assert (b[0][0] != c[0][0] );
+
+    assert (a[1][0] != c[1][0] );
+    assert (b[0][1] != c[0][1] );
 }
 
 
@@ -92,22 +142,7 @@ public static T SingleElementBitMask(D,T)(D[][] value, T[] tiles, D testConditio
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////
-///UNIT TESTING CODE///
-///////////////////////
-
-public static bool TestBitmaskingResult(wchar[] example, wchar[] result)
+private static bool testBitmaskingResult(wchar[] example, wchar[] result)
 {
 
     assert(example.length == result.length);
@@ -120,30 +155,30 @@ public static bool TestBitmaskingResult(wchar[] example, wchar[] result)
     return true;
 }
 
-public static void PrintUnittest(wchar[] src)
+private static void printUnittest(wchar[] src)
 {
 
-    import std;
+    import std:writeln;
 
     writeln("-------------------------------------------------------------");
-    PrintScreen(src);
+    printScreen(src);
     writeln("-------------------------------------------------------------");
 }
 
-private static void UnittestShapeWchar(wchar[][] sample, wchar[] result)
+private static void unittestShapeWchar(wchar[][] sample, wchar[] result)
 {
-    import utility;
+     
 
-    wchar[] convert = Compress2DWCharArrayTo1D(BitMask!wchar(sample, StandardTileArray()));
-    PrintUnittest(convert);
+    wchar[] convert = compress2DWCharArrayTo1D(bitMask!wchar(sample, standardTileArray()));
+    printUnittest(convert);
 
-    assert(TestBitmaskingResult(convert, result));
+    assert(testBitmaskingResult(convert, result));
 }
 
 //1x1
 unittest
 {
-    UnittestShapeWchar([['█', '█'], ['█', '█']], [
+    unittestShapeWchar([['█', '█'], ['█', '█']], [
             '╔', '╗', '\n', '╚', '╝'
             ]);
 }
@@ -151,13 +186,13 @@ unittest
 //2x2
 unittest
 {
-    UnittestShapeWchar([['█']], ['█']);
+    unittestShapeWchar([['█']], ['█']);
 }
 
 //3x3 middle gone
 unittest
 {
-    UnittestShapeWchar([
+    unittestShapeWchar([
             ['█', '█', '█'], ['█', '▒', '█'], ['█', '█', '█']
             ], [
             '╔', '═', '╗', '\n', '║', '▒', '║', '\n', '╚', '═',
@@ -168,7 +203,7 @@ unittest
 // 3x3
 unittest
 {
-    UnittestShapeWchar([
+    unittestShapeWchar([
             ['█', '█', '█'], ['█', '█', '█'], ['█', '█', '█']
             ], [
             '╔', '╦', '╗', '\n', '╠', '╬', '╣', '\n', '╚', '╩','╝'
@@ -179,7 +214,7 @@ unittest
 unittest
 {
 
-    UnittestShapeWchar([
+    unittestShapeWchar([
             ['█', '█', '█', '█', '█'],
             ['█', '■', '■', '■', '█'],
             ['█', '■', '█', '■', '█'],
@@ -198,7 +233,7 @@ unittest
 unittest
 {
 
-    UnittestShapeWchar([
+    unittestShapeWchar([
             ['█', '█', '█', '█', '█', '█', '█'],
             ['█', '■', '█', '█', '█', '■', '█'],
             ['█', '■', '█', '█', '█', '■', '█'],
@@ -221,7 +256,7 @@ unittest
 unittest
 {
 
-    UnittestShapeWchar([
+    unittestShapeWchar([
             ['█', '█', '█', '█', '█', '█', '█'],
             ['█', '■', '■', '■', '█', '█', '█'],
             ['█', '■', '█', '■', '█', '■', '█'],
@@ -241,70 +276,45 @@ unittest
 }
 
 
-public wchar[][] StandardTileArray()
+public wchar[][] standardTileArray()
 {
     return 
     [
         [
-            TileWChar.wall, //0x_0000_0000
-            TileWChar._N,   //0x_0000_0001
-            TileWChar._W,   //0x_0000_0010
-            TileWChar._3,   //0x_0000_0011
-            TileWChar._E,   //0x_0000_0100
-            TileWChar._1,   //0x_0000_0101
-            TileWChar._2_8, //0x_0000_0110
-            TileWChar._2,   //0x_0000_0111
-            TileWChar._S,   //0x_0000_1000
-            TileWChar._4_6, //0x_0000_1001
-            TileWChar._9,   //0x_0000_1010
-            TileWChar._6,   //0x_0000_1011
-            TileWChar._7,   //0x_0000_1100
-            TileWChar._4,   //0x_0000_1101
-            TileWChar._8,   //0x_0000_1110
-            TileWChar._5    //0x_0000_1111
+            '█',   //0x_0000_0000
+            '▀',   //0x_0000_0001
+            '»',   //0x_0000_0010
+            '╝',   //0x_0000_0011
+            '«',   //0x_0000_0100
+            '╚',   //0x_0000_0101
+            '═',   //0x_0000_0110
+            '╩',   //0x_0000_0111
+            '▄',   //0x_0000_1000
+            '║',   //0x_0000_1001
+            '╗',   //0x_0000_1010
+            '╣',   //0x_0000_1011
+            '╔',   //0x_0000_1100
+            '╠',   //0x_0000_1101
+            '╦',   //0x_0000_1110
+            '╬'    //0x_0000_1111
         ],
         [
-            TileWChar.FLOOR_BASIC, 
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE,
-            TileWChar.FLOOR_STONE
+            '■', 
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒',
+            '▒'
         ]
     ];
-}
-
-public enum TileWChar : wchar
-{
-
-    _1 = '╚',
-    _2 = '╩',
-    _3 = '╝',
-    _4 = '╠',
-    _5 = '╬',
-    _6 = '╣',
-    _7 = '╔',
-    _8 = '╦',
-    _9 = '╗',
-
-    _2_8 = '═',
-    _4_6 = '║',
-    _N = '▀',
-    _W = '»',
-    _E = '«',
-    _S = '▄',
-    wall = '█',
-
-    FLOOR_BASIC = '■',
-    FLOOR_STONE = '▒',
 }
