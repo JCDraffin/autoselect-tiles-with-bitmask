@@ -3,7 +3,7 @@
 		"J.C Draffin"
 	],
 	"copyright": "Copyright © 2022, J.C Draffin",
-	"description": "Simple template algorithm to allow tile bitmasking with when given a 2d array of any type",
+	"description": "Example program to test tile bitmasking alogrithm",
 	"license": "MIT",
 	"name": "tile-bitmasking-algorithm"
 }

@@ -7,7 +7,7 @@ void main()
     
 
 
-    auto flags = [true, true, false];
+    auto flags = [true, true, true];
 
     if(flags[0])exampleSimpleShape();
     if(flags[1])exampleRogue();
@@ -18,7 +18,7 @@ void main()
  +
  +
  +
- + Author: J.C.
+ + Author: J.C. Draffin
  + Version: 1.0
  +
  +/
@@ -59,7 +59,7 @@ static void exampleSimpleShape()
  +
  +
  +
- + Author: J.C.
+ + Author: J.C. Draffin
  + Version: 1.0
  +
  +/
@@ -99,7 +99,7 @@ static void exampleRogue()
     for(int i = 0; i < 9; i++)
     {
         int x = (i%3)+1, y = (i/3)+1;
-        // import com.github.jcdraffin.utility:dup2d;
+        import com.github.jcdraffin.utility:dup2d;
         wchar[][] writable = dup2d!wchar(roguelikeExampleBuffer);
         writable[y][x] = '@';
         writefln!"----------";
@@ -115,7 +115,7 @@ static void exampleRogue()
  +
  +
  +
- + Author: J.C.
+ + Author: J.C. Draffin
  + Version: 1.0
  +
  +/
